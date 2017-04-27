@@ -83,15 +83,13 @@ Item {
         property bool flickStarted: false
 
         plugin: Plugin {
-            id: plugin
-            preferred: ["mapbox"]
-            //This mapbox token is for this automotive demo use only. For other projects please contact
-            //https://www.mapbox.com/ for access token.
-            PluginParameter { name: "mapbox.access_token"; value: "pk.eyJ1IjoibWFwYm94NHF0IiwiYSI6ImNpd3J3eDE0eDEzdm8ydHM3YzhzajlrN2oifQ.keEkjqm79SiFDFjnesTcgQ" }
-            PluginParameter { name: "mapbox.map_id"; value: "qtcluster.d7eed331" }
+            preferred: ["mapboxgl"]
         }
 
         center: startCoordinate
+
+        activeMapType: supportedMapTypes[9] // Mapbox Traffic Night
+        copyrightsVisible: false
 
         //Helper timer to notice when position is not updated anymore,
         //then we need to start the route over.
@@ -147,7 +145,12 @@ Item {
 
         RouteModel {
             id: routeModel
-            plugin: map.plugin
+            plugin: Plugin {
+                preferred: ["mapboxgl"]
+                //This mapbox token is for this automotive demo use only. For other projects please contact
+                //https://www.mapbox.com/ for access token.
+                PluginParameter { name: "mapbox.access_token"; value: "pk.eyJ1IjoibWFwYm94NHF0IiwiYSI6ImNpd3J3eDE0eDEzdm8ydHM3YzhzajlrN2oifQ.keEkjqm79SiFDFjnesTcgQ" }
+            }
             query: RouteQuery {
                 id: routeQuery
             }
