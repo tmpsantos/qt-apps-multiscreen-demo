@@ -80,7 +80,6 @@ Item {
         color: "black"
         property real speed
         property bool mapManuallyMoved: false
-        property bool flickStarted: false
 
         plugin: Plugin {
             preferred: ["mapboxgl"]
@@ -115,32 +114,44 @@ Item {
             }
         }
 
-        Behavior on center {
-            id: centerBehavior
-            enabled: true
-            CoordinateAnimation { duration: 1500 }
+        RotationAnimation on bearing {
+            id: bearingAnimation
+
+            duration: 3000
+            alwaysRunToEnd: false
+            running: !map.isMoving()
+            direction: RotationAnimation.Shortest
+        }
+
+        Location {
+            id: previousLocation
+            coordinate: QtPositioning.coordinate(0, 0);
+        }
+
+        onCenterChanged: {
+            if (previousLocation.coordinate == center || map.isMoving())
+                return;
+
+            bearingAnimation.to = previousLocation.coordinate.azimuthTo(center);
+            bearingAnimation.start();
+
+            previousLocation.coordinate = center;
         }
 
         zoomLevel: 16
         gesture.enabled: true
         gesture.acceptedGestures: MapGestureArea.PinchGesture | MapGestureArea.PanGesture
                                   | MapGestureArea.FlickGesture
-        gesture.onFlickFinished: {
-            flickStarted = false
-            checkMapMoving()
+        gesture.onPanStarted: {
+            map.mapManuallyMoved = true
         }
-        gesture.onFlickStarted: {
-            flickStarted = true
+        gesture.onPinchStarted: {
+            map.mapManuallyMoved = true
         }
-        gesture.onPanFinished: {
-            if (!flickStarted)
-                checkMapMoving()
-        }
-        function checkMapMoving() {
-            if (!map.visibleRegion.contains(positionQuickItem.coordinate))
-                map.mapManuallyMoved = true
-            else
-                map.mapManuallyMoved = false
+        function isMoving() {
+            return map.gesture.panActive
+                || map.gesture.pinchActive
+                || map.mapManuallyMoved;
         }
 
         RouteModel {
@@ -230,17 +241,12 @@ Item {
         }
 
         Timer {
-            interval: 3000
+            interval: 50
             repeat: true
-            running: !map.mapManuallyMoved && (root.mapState === "navigationRunning"
-                                               || root.mapState === "driveStarted")
+            running: !map.isMoving() && (root.mapState === "navigationRunning"
+                     || root.mapState === "driveStarted")
             onTriggered: {
-                //Check if positionQuickItem has moved out of visible area. We cannot do that in
-                //onCoordinageChanged function as that fires too often
-                if (map.mapManuallyMoved || map.panOngoing)
-                    return
-                if (!map.visibleRegion.contains(positionQuickItem.coordinate))
-                    map.center = positionQuickItem.coordinate
+                map.center = positionQuickItem.coordinate
             }
         }
     }
@@ -286,11 +292,13 @@ Item {
             id: area
             anchors.fill: parent
             onClicked: {
-                map.mapManuallyMoved = false
                 if (root.mapState === "navigationRunning" || root.mapState === "driveStarted")
                     map.center = positionSource.position.coordinate
                 else
                     map.center = startCoordinate
+
+                previousLocation.coordinate = positionSource.position.coordinate
+                map.mapManuallyMoved = false
             }
         }
         scale: area.pressed ? 0.85 : 1.0
