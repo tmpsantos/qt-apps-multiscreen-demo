@@ -151,7 +151,9 @@ Item {
         zoomLevel: 16
         gesture.enabled: true
         gesture.acceptedGestures: MapGestureArea.PinchGesture | MapGestureArea.PanGesture
-                                  | MapGestureArea.FlickGesture
+                                  | MapGestureArea.FlickGesture | MapGestureArea.RotationGesture
+                                  | MapGestureArea.TiltGesture
+
         gesture.onPanStarted: {
             map.mapManuallyMoved = true
         }
