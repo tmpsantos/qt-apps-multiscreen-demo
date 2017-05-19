@@ -82,7 +82,17 @@ Item {
         property bool mapManuallyMoved: false
 
         plugin: Plugin {
-            preferred: ["mapboxgl"]
+            name: "mapboxgl"
+
+            PluginParameter {
+                name: "mapboxgl.mapping.cache.memory"
+                value: true
+            }
+
+            PluginParameter {
+                name: "mapboxgl.access_token"
+                value: "pk.eyJ1IjoidG1wc2FudG9zIiwiYSI6ImNqMWVzZWthbDAwMGIyd3M3ZDR0aXl3cnkifQ.FNxMeWCZgmujeiHjl44G9Q"
+            }
         }
 
         center: startCoordinate
