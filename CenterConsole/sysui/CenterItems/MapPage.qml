@@ -27,7 +27,7 @@
 ****************************************************************************/
 
 import QtQuick 2.7
-import QtLocation 5.5
+import QtLocation 5.9
 import QtPositioning 5.5
 
 import controls 1.0
@@ -251,6 +251,15 @@ Item {
         }
     }
 
+    MapCopyrightNotice {
+        z: 3
+        mapSource: map
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.left
+        rotation: 90
+        anchors.horizontalCenterOffset: 10
+    }
+
     Image {
         id: backButton
         z: 3
@@ -339,16 +348,6 @@ Item {
         ArrivalInfo { arText: arrivalTime; text2: "arrival time" }
         ArrivalInfo { arText: totalTravelTime; text2: "duration" }
         ArrivalInfo { arText: totalDistance; text2: "distance" }
-    }
-
-    Label {
-        z: 3
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.leftMargin: Style.padding
-        anchors.topMargin:5
-        font.pixelSize: 9
-        text: "© Mapbox © OpenStreetMap"
     }
 
     function showRoute() {
